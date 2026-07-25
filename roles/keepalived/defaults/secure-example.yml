@@ -1,0 +1,3 @@
+---
+# NOTE: Only first 8 characters are used!
+keepalived_auth_pass: "INSERT PASSWORD"

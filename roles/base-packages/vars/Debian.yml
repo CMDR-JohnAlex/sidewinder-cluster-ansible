@@ -1,0 +1,8 @@
+---
+pkg_mgr_specific_os_packages_install:
+  - apt-transport-https
+  - gpg
+
+pkg_mgr_specific_os_packages_remove:
+  - snap
+  - snapd

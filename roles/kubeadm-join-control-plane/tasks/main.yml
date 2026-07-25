@@ -1,0 +1,4 @@
+---
+- name: Join additional control plane nodes
+  become: true
+  command: "{{ hostvars[groups['control_plane'][0]].controlplane_join.stdout }}"

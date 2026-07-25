@@ -1,0 +1,93 @@
+---
+
+# Ref: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+
+
+
+# TODO: Disable swap (rpi only? All OS must not have swap, but... I don't want to disable it on my Arch Linux devices)
+# we could make kubelet tolerate swap, but be warned that it could cause issues.
+# https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#swap-configuration
+
+- name: Disable swap for current session
+  become: true
+  ansible.builtin.command: swapoff -a
+  when:
+  - kubernetes_disable_swap
+  - ansible_swaptotal_mb > 0
+
+- name: Remove swap from fstab permanently
+  become: true
+  ansible.posix.mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  loop: ["none", "swap"]
+  when:
+  - kubernetes_disable_swap
+
+- name: Load overlay kernel module
+  become: true
+  community.general.modprobe:
+    name: overlay
+    state: present
+    persistent: present
+
+- name: Load br_netfilter kernel module
+  become: true
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+    persistent: present
+
+# Set ip forwarding on in the sysctl file and reload if necessary
+- name: Update sysctl values
+  become: true
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: Update sysctl values
+  become: true
+  ansible.posix.sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: '1'
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: Update sysctl values
+  become: true
+  ansible.posix.sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: '1'
+    sysctl_set: true
+    state: present
+    reload: true
+
+
+- name: Load OS-specific variables
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
+
+- include_tasks: "{{ ansible_facts['os_family'] }}-pre.yml"
+  when:
+    - ansible_facts['os_family'] == "Debian"
+
+- name: Install required packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ common_install_packages + pkg_mgr_specific_os_packages_install }}"
+    state: present
+
+- include_tasks: "{{ ansible_facts['os_family'] }}-post.yml"
+  when:
+    - ansible_facts['os_family'] == "Debian"
+
+- name: Enable and start kubelet immediately
+  become: true
+  ansible.builtin.systemd_service:
+    name: kubelet
+    enabled: true
+    state: started

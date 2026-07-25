@@ -1,0 +1,14 @@
+---
+- name: Copy admin.conf to local machine (as default context)
+  become: true
+  ansible.builtin.fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: ~/.kube/config
+    flat: true
+
+- name: Copy admin.conf to local machine (backup copy)
+  become: true
+  ansible.builtin.fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: ~/.kube/sidewinder-cluster.conf
+    flat: true

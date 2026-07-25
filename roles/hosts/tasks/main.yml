@@ -1,0 +1,9 @@
+---
+- name: Update {{ hosts_file }} file
+  become: true
+  ansible.builtin.template:
+    src: "{{ hosts_template }}"
+    dest: "{{ hosts_file }}"
+    owner: root
+    group: root
+    mode: "0644"

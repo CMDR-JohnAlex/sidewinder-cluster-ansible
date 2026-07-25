@@ -1,0 +1,24 @@
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    daemon
+
+defaults
+    log     global
+    mode    tcp
+    option  tcplog
+    option  dontlognull
+    timeout connect 5000ms
+    timeout client  50000ms
+    timeout server  50000ms
+
+frontend k8s-api
+    bind {{ control_plane_VIP }}:{{ control_plane_VIP_port }}
+    default_backend k8s-api-backend
+
+backend k8s-api-backend
+    option tcp-check
+    balance roundrobin
+{% for host in groups['control_plane'] %}
+    server {{ host }} {{ hostvars[host]['ansible_host'] }}:{{ control_plane_port }} check fall 3 rise 2
+{% endfor %}

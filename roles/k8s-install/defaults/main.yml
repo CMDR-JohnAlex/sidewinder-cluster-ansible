@@ -1,0 +1,7 @@
+---
+common_install_packages:
+  - kubeadm
+  - kubelet
+  - kubectl
+
+kubernetes_disable_swap: true

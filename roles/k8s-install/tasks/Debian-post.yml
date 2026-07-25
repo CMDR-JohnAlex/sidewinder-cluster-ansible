@@ -1,0 +1,21 @@
+---
+- name: Hold k8s packages
+  become: true
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop: "{{ common_install_packages }}"
+
+- name: Check if reboot is required
+  become: true
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: reboot_required_file
+
+- name: Reboot if required
+  become: true
+  ansible.builtin.reboot:
+    msg: "Rebooting due to kernel/system updates on {{ inventory_hostname }}"
+    reboot_timeout: 600
+  when:
+    - reboot_required_file.stat.exists

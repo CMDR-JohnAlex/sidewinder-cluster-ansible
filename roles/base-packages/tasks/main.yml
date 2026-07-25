@@ -1,0 +1,21 @@
+---
+- name: Load OS-specific variables
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
+
+- include_tasks: "{{ ansible_facts['os_family'] }}-pre.yml"
+
+- name: Remove unwanted packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ common_remove_packages + pkg_mgr_specific_os_packages_remove }}"
+    state: absent
+
+- name: Install packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ common_install_packages + pkg_mgr_specific_os_packages_install }}"
+    state: present
+
+- include_tasks: "{{ ansible_facts['os_family'] }}-post.yml"
+  when:
+    - ansible_facts['os_family'] == "Debian"

@@ -1,0 +1,11 @@
+---
+- name: Load encrypted vars
+  include_vars: "../defaults/keys.yml"
+
+- name: Deploy authorized SSH keys
+  ansible.builtin.authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ item }}"
+  loop: "{{ authorized_ssh_keys }}"
+  when: item | length > 0

@@ -1,0 +1,7 @@
+---
+common_install_packages:
+  - keepalived
+
+# NOTE: Should be value defined by each control plane node, else some default number.
+keepalived_priority: "{{ keepalived_priority_override | default(30, true) }}"
+keepalived_vip: "{{ control_plane_VIP }}"
