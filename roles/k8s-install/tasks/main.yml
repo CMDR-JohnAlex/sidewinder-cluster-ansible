@@ -81,6 +81,13 @@
     name: "{{ common_install_packages + pkg_mgr_specific_os_packages_install }}"
     state: present
 
+- name: Install Helm
+  become: true
+  ansible.builtin.shell: |
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    creates: /usr/local/bin/helm
+
 - include_tasks: "{{ ansible_facts['os_family'] }}-post.yml"
   when:
     - ansible_facts['os_family'] == "Debian"
