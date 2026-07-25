@@ -1,18 +1,4 @@
 ---
-- name: Create temporary directory for ArgoCD manifests
-  become: true
-  ansible.builtin.file:
-    path: /tmp/argocd
-    state: directory
-    mode: "0755"
-
-- name: Copy kustomization.yaml to remote host
-  become: true
-  ansible.builtin.copy:
-    src: kustomization.yaml
-    dest: /tmp/argocd/kustomization.yaml
-    mode: "0644"
-
 - name: Create argocd namespace
   become: true
   ansible.builtin.shell: |
@@ -21,17 +7,24 @@
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
 
-- name: Install ArgoCD HA
+- name: Add Argo Helm repository
   become: true
-  ansible.builtin.command:
-    cmd: kubectl apply -n argocd --server-side --force-conflicts -k /tmp/argocd/
+  kubernetes.core.helm_repository:
+    name: argo
+    repo_url: https://argoproj.github.io/argo-helm
+
+- name: Install ArgoCD HA using Helm
+  become: true
+  kubernetes.core.helm:
+    name: argocd
+    chart_ref: argo/argo-cd
+    chart_version: 8.3.4
+    release_namespace: argocd
+    create_namespace: false
+    wait: true
+    timeout: 15m
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
-  register: argocd_apply
-
-- name: Show kubectl output
-  ansible.builtin.debug:
-    var: argocd_apply.stdout_lines
 
 - name: Wait for ArgoCD deployment rollout
   become: true
