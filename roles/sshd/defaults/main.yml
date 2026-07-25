@@ -1,0 +1,21 @@
+---
+sshd_port: 22
+sshd_login_grace_time: "30"
+sshd_permit_root_login: "no" # `prohibit-password` is default
+sshd_max_auth_tries: 2
+sshd_max_sessions: 2
+sshd_authorized_keys_file: ".ssh/authorized_keys"
+sshd_password_authentication: "no"
+sshd_permit_empty_passwords: "no"
+sshd_x11_forwarding: "no"
+sshd_print_motd: "yes"
+sshd_print_last_log: "yes"
+sshd_client_alive_interval: "0"
+sshd_client_alive_count_max: "3"
+
+sshd_config_file: "sshd_config"
+# NOTE: SSH banners appear before login, as soon as a connection request is made.
+sshd_banner_file: "issue" # or set it to `none`
+sshd_motd_file: "motd"
+
+systemd_service: "ssh"

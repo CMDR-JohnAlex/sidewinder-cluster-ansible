@@ -1,0 +1,70 @@
+---
+
+# containerd will be installed from package managers. Ref: https://github.com/containerd/containerd/blob/main/docs/getting-started.md#option-2-from-apt-get-or-dnf
+
+- include_tasks: "{{ ansible_facts['os_family'] }}-pre.yml"
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Install containerd packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ common_install_packages }}"
+    state: present
+
+# Installing CNI plugins (https://github.com/containerd/containerd/blob/main/docs/getting-started.md#step-3-installing-cni-plugins)
+
+- name: Download CNI plugins
+  become: true
+  ansible.builtin.get_url:
+    url: "https://github.com/containernetworking/plugins/releases/download/{{ containerd_cni_plugins_version }}/{{ containerd_cni_plugins_package }}"
+    dest: "/tmp/{{ containerd_cni_plugins_package }}"
+    mode: '0644'
+    checksum: "sha256:https://github.com/containernetworking/plugins/releases/download/{{ containerd_cni_plugins_version }}/{{ containerd_cni_plugins_sha256sum }}"
+
+- name: Ensure CNI directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ containerd_cni_plugins_location }}"
+    state: directory
+    mode: '0755'
+
+- name: Extract CNI plugins
+  become: true
+  ansible.builtin.unarchive:
+    src: "/tmp/{{ containerd_cni_plugins_package }}"
+    dest: "{{ containerd_cni_plugins_location }}"
+    remote_src: true
+    creates: "{{ containerd_cni_plugins_location }}/bridge"
+
+- name: Ensure CNI config directory exists
+  become: true
+  ansible.builtin.file:
+    path: "/etc/containerd"
+    state: directory
+    mode: '0755'
+
+- name: Generate containerd config
+  become: true
+  ansible.builtin.shell: containerd config default > /etc/containerd/config.toml
+  register: containerd_output # Grab command output
+  changed_when: containerd_output.rc != 0 # Check if file was modified (rc = return code)
+
+- name: Enable systemd cgroup driver
+  become: true
+  ansible.builtin.replace:
+    path: /etc/containerd/config.toml
+    regexp: 'SystemdCgroup\s*=\s*false'
+    replace: 'SystemdCgroup = true'
+
+- name: Start and enable containerd service
+  become: true
+  ansible.builtin.service:
+    name: containerd
+    state: started
+    enabled: true
+
+- name: Restart containerd
+  become: true
+  ansible.builtin.service:
+    name: containerd
+    state: restarted

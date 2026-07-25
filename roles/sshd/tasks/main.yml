@@ -1,0 +1,29 @@
+---
+- name: Copy sshd Configuration File `{{ sshd_config_file }}`
+  become: true
+  ansible.builtin.template:
+    src: "{{ sshd_config_file }}.j2"
+    dest: "/etc/ssh/{{ sshd_config_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: # Notify will trigger the "restart sshd" handler when the task reports as "changed".
+    - Restart sshd
+
+- name: Copy banner File `{{ sshd_banner_file }}`
+  become: true
+  ansible.builtin.template:
+    src: "{{ sshd_banner_file }}.j2"
+    dest: "/etc/ssh/{{ sshd_banner_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Copy motd File `{{ sshd_motd_file }}`
+  become: true
+  ansible.builtin.template:
+    src: "{{ sshd_motd_file }}.j2"
+    dest: "/etc/{{ sshd_config_file }}"
+    owner: root
+    group: root
+    mode: "0644"

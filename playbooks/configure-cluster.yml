@@ -1,0 +1,54 @@
+---
+- name: Gather facts for whole inventory
+  hosts: all
+  gather_facts: true
+  tasks: []
+
+- name: Configure all nodes
+  hosts: k8s_nodes
+  roles:
+    - role: hostname
+    - role: hosts
+    - role: timezone
+    - role: ssh-keys
+    - role: sshd
+    - role: base-packages
+
+- name: Configure all nodes
+  hosts: k8s_nodes
+  roles:
+    - role: containerd
+    - role: k8s-install
+
+- name: Configure control plane nodes
+  hosts: control_plane
+  serial: 1 # NOTE: 1 at a time. Prevents race conditions in keepalived? Or is that not true?
+  roles:
+    - role: haproxy
+    - role: keepalived
+
+- name: Bootstrap cluster
+  hosts: control_plane[0]
+  roles:
+    - role: kubeadm-init
+
+- name: Join control plane nodes
+  hosts: control_plane[1:]
+  roles:
+    - kubeadm-join-control-plane
+
+- name: Join worker nodes
+  hosts: workers
+  roles:
+    - kubeadm-join-worker
+
+- name: Fetch admin kubeconfig
+  hosts: control_plane[0]
+  roles:
+    - fetch-kubeconfig
+
+- name: Deploy cluster add-ons
+  hosts: control_plane[0]
+  roles:
+    - role: calico
+    - role: argocd

@@ -1,0 +1,3 @@
+---
+authorized_ssh_keys:
+  - "*insert ssh public key*"

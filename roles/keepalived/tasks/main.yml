@@ -1,0 +1,34 @@
+---
+- name: Load secure vars
+  include_vars: "../defaults/secure.yml"
+
+- name: Install base packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ common_install_packages }}"
+    state: present
+
+# REF: https://computingforgeeks.com/kubeadm-ha-kubernetes-cluster-linux/
+
+- name: Create keepalived config directory
+  become: true
+  ansible.builtin.file:
+    path: "/etc/keepalived"
+    state: directory
+    mode: "0755"
+
+- name: Copy template keepalived.conf to node
+  become: true
+  ansible.builtin.template:
+    src: "keepalived.conf.j2"
+    dest: "/etc/keepalived/keepalived.conf"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Enable and start keepalived immediately
+  become: true
+  ansible.builtin.systemd_service:
+    name: keepalived
+    enabled: true
+    state: started

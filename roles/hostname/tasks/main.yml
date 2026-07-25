@@ -1,0 +1,8 @@
+---
+- name: Set system hostname from inventory
+  become: true
+  ansible.builtin.hostname:
+    name: "{{ hostname_name }}"
+
+- name: Refresh facts after change
+  ansible.builtin.setup:

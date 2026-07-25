@@ -1,0 +1,41 @@
+---
+- name: Install base packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ common_install_packages }}"
+    state: present
+
+- name: Allow HAProxy to bind VIP on non-owner nodes
+  become: true
+  ansible.builtin.sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: 1
+    state: present
+    reload: true
+
+# REF: https://computingforgeeks.com/kubeadm-ha-kubernetes-cluster-linux/
+
+- name: Create HAProxy config directory
+  become: true
+  ansible.builtin.file:
+    path: "/etc/haproxy"
+    state: directory
+    mode: "0755"
+
+- name: Copy haproxy.cfg to node
+  become: true
+  ansible.builtin.template:
+    src: "haproxy.cfg.j2"
+    dest: "/etc/haproxy/haproxy.cfg"
+    owner: root
+    group: root
+    mode: "0644"
+    validate: "haproxy -c -f %s"
+  notify: Restart HAProxy
+
+- name: Enable and start HAProxy immediately
+  become: true
+  ansible.builtin.systemd_service:
+    name: haproxy
+    enabled: true
+    state: started

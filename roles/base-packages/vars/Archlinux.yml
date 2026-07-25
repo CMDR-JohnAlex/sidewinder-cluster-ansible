@@ -1,0 +1,5 @@
+---
+pkg_mgr_specific_os_packages_install:
+  - gnupg
+
+pkg_mgr_specific_os_packages_remove: []

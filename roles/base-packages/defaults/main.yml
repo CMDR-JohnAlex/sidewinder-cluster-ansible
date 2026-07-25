@@ -1,0 +1,14 @@
+---
+common_install_packages:
+  - curl
+  - wget
+  - vim
+  - git
+  - htop
+  - btop
+  - net-tools
+  - unzip
+  - ca-certificates
+  - tree
+
+common_remove_packages: []

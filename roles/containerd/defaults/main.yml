@@ -1,0 +1,27 @@
+---
+
+common_install_packages:
+  - runc
+  - containerd
+
+debian_remove_packages:
+  - docker-ce
+  - docker-ce-rootless-extras
+
+# NOTE: Remember to update containerd for any security updates.
+# https://github.com/containernetworking/plugins/releases
+containerd_cni_plugins_version: v1.9.1
+
+containerd_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+
+containerd_arch: "{{ containerd_arch_map[ansible_facts['architecture']] | default(ansible_facts['architecture']) }}"
+
+containerd_cni_plugins_package: "cni-plugins-linux-{{ containerd_arch }}-{{ containerd_cni_plugins_version }}.tgz"
+
+containerd_cni_plugins_sha256sum: "{{ containerd_cni_plugins_package }}.sha256"
+
+containerd_cni_plugins_sha512sum: "{{ containerd_cni_plugins_package }}.sha512"
+
+containerd_cni_plugins_location: /opt/cni/bin

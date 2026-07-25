@@ -1,0 +1,6 @@
+---
+timezone: "Etc/UTC"
+
+timezone_affected_services:
+  - cron
+  - rsyslog

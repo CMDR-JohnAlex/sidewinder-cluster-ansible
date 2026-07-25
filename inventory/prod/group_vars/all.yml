@@ -1,0 +1,7 @@
+---
+control_plane_VIP: 192.168.7.10
+control_plane_VIP_port: 8443
+control_plane_port: 6443
+
+pod_network_cidr: 10.244.0.0/16
+service_network_cidr: 10.96.0.0/12
