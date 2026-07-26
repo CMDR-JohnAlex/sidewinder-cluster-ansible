@@ -2,27 +2,32 @@
 # REF: https://computingforgeeks.com/kubeadm-ha-kubernetes-cluster-linux/
 # REF: https://docs.tigera.io/calico/latest/getting-started/kubernetes/quickstart
 
-- name: Apply Calico CRDs
+- name: Apply Calico v3 CRDs v3.32.1
   become: true
   ansible.builtin.command:
     cmd: >
-      kubectl
-      apply
+      kubectl apply
       --server-side
-      -f
-      https://raw.githubusercontent.com/projectcalico/calico/v3.32.1/manifests/v1_crd_projectcalico_org.yaml
+      -f https://raw.githubusercontent.com/projectcalico/calico/v3.32.1/manifests/v3_projectcalico_org.yaml
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
 
-- name: Apply Tigera operator
+- name: Add Calico Helm repository
   become: true
-  ansible.builtin.command:
-    cmd: >
-      kubectl
-      apply
-      --server-side
-      -f
-      https://raw.githubusercontent.com/projectcalico/calico/v3.32.1/manifests/tigera-operator.yaml
+  kubernetes.core.helm_repository:
+    name: projectcalico
+    repo_url: https://docs.tigera.io/calico/charts
+
+- name: Install Tigera operator with Helm
+  become: true
+  kubernetes.core.helm:
+    name: tigera-operator
+    chart_ref: projectcalico/tigera-operator
+    chart_version: v3.32.1
+    release_namespace: tigera-operator
+    create_namespace: true
+    wait: true
+    timeout: 15m
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
 
@@ -49,20 +54,26 @@
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
 
-- name: Wait for calico deployment rollout
+- name: Wait for Tigera operator deployment
   become: true
-  command: >
-    kubectl rollout status deployment/calico-apiserver
-    --namespace=calico-system
+  ansible.builtin.command: >
+    kubectl rollout status deployment/tigera-operator
+    --namespace=tigera-operator
     --timeout=900s
-  register: rollout_result
   changed_when: false
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
 
-- name: Show kubectl rollout output
-  ansible.builtin.debug:
-    var: rollout_result.stdout_lines
+- name: Wait for Calico installation
+  become: true
+  ansible.builtin.command: >
+    kubectl wait
+    --for=jsonpath='{.status.variant}'
+    installation/default
+    --timeout=900s
+  changed_when: false
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
 
 # NOTE: If you can no longer join other nodes, you may need to run the following:
 # `kubectl patch felixconfiguration default --type=merge -p '{"spec":{"failsafeInboundHostPorts":[{"protocol":"tcp","port":22},{"protocol":"tcp","port":6443},{"protocol":"tcp","port":2379},{"protocol":"tcp","port":2380},{"protocol":"tcp","port":10250},{"protocol":"tcp","port":10259},{"protocol":"tcp","port":10257},{"protocol":"tcp","port":179},{"protocol":"udp","port":4789},{"protocol":"tcp","port":5473}]}}'`
