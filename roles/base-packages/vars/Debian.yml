@@ -2,6 +2,7 @@
 pkg_mgr_specific_os_packages_install:
   - apt-transport-https
   - gpg
+  - nfs-common # Needed for the NFS drive
 
 pkg_mgr_specific_os_packages_remove:
   - snap

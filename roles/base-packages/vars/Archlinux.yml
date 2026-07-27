@@ -1,5 +1,6 @@
 ---
 pkg_mgr_specific_os_packages_install:
   - gnupg
+  - nfs-utils # Needed for the NFS drive
 
 pkg_mgr_specific_os_packages_remove: []
