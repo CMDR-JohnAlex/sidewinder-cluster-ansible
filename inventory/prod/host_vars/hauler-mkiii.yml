@@ -1,0 +1,8 @@
+---
+# NOTE: To find UUID: `sudo lsblk -o NAME,FSTYPE,UUID,MOUNTPOINT`
+nfs_drive_UUID: "9276ecfd-6dd5-4e22-9a91-2afafd0a53a3"
+nfs_drive_format: "ext4"
+nfs_mount_directory: "/mnt/{{ nfs_drive_UUID }}"
+nfs_authorized_host: "192.168.7.0/24" # NOTE: Can be an IP, wildcard, or subnet!
+nfs_filesystem_mount_options: "defaults,noatime,nodiratime,commit=60,nofail"
+nfs_export_options: "rw,async,no_subtree_check,no_root_squash" # WARN: async means ACKs are sent before data actually finishes writing... we should consider this choice carefully!

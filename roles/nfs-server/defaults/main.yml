@@ -1,0 +1,11 @@
+---
+# NOTE: These must be defined in the host_vars
+
+# nfs_drive_UUID: "UUID" # NOTE: Find UUID using: `sudo lsblk -o NAME,FSTYPE,UUID,MOUNTPOINT`
+# nfs_drive_format: "ext4"
+# nfs_mount_directory: "/mnt/{{ nfs_drive_UUID }}"
+# nfs_authorized_host: "192.168.7.0/24" # NOTE: Can be an IP, wildcard, or subnet!
+# nfs_filesystem_mount_options: ""
+# nfs_export_options: ""
+
+common_install_packages: []

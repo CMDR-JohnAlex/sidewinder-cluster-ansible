@@ -1,0 +1,58 @@
+---
+# REF: https://ubuntu.com/server/docs/how-to/networking/install-nfs/
+
+- name: Load OS-specific variables
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
+
+- include_tasks: "{{ ansible_facts['os_family'] }}-pre.yml"
+
+- name: Install packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ common_install_packages + pkg_mgr_specific_os_packages_install }}"
+    state: present
+
+# NOTE: The following tasks may be specific to the package... such as the `exportfs -a` command.
+# If we add another OS that uses a different package and the setup differs greatly, we may want
+# to split the setup into OS-specific tasks files. Think the current `Debian-pre.yml`, but for
+# the whole task.
+
+- name: Enable and start nfs-kernel-server immediately
+  become: true
+  ansible.builtin.systemd_service:
+    name: nfs-kernel-server.service
+    enabled: true
+    state: started
+
+- name: Ensure NFS mount directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ nfs_mount_directory }}"
+    state: directory
+    mode: "0755"
+
+- name: Add entry to fstab and actively mount the device
+  become: true
+  ansible.posix.mount:
+    path: "{{ nfs_mount_directory }}"
+    src: "UUID={{ nfs_drive_UUID }}"
+    fstype: "{{ nfs_drive_format }}"
+    opts: "{{ nfs_filesystem_mount_options }}"
+    dump: '0'
+    passno: '2'
+    state: mounted
+
+- name: Copy exports.j2 to node
+  become: true
+  ansible.builtin.template:
+    src: "exports.j2"
+    dest: "/etc/exports"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Apply NFS exports
+  become: true
+  ansible.builtin.shell: exportfs -a
+  register: exportfs_output
+  changed_when: exportfs_output.rc != 0
