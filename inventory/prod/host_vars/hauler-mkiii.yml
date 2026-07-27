@@ -3,6 +3,7 @@
 nfs_drive_UUID: "8dafdf36-cb0f-4102-a05e-d69ea5954303"
 nfs_drive_format: "ext4"
 nfs_mount_directory: "/mnt/{{ nfs_drive_UUID }}"
+nfs_kubernetes_subdirectory: "sidewinder-nfs"
 nfs_authorized_host: "192.168.7.0/24" # NOTE: Can be an IP, wildcard, or subnet!
 nfs_filesystem_mount_options: "defaults,noatime,nodiratime,commit=60,nofail"
 nfs_export_options: "rw,async,no_subtree_check,no_root_squash" # WARN: async means ACKs are sent before data actually finishes writing... we should consider this choice carefully!
