@@ -29,7 +29,7 @@
   ansible.builtin.file:
     path: "{{ nfs_mount_directory }}"
     state: directory
-    mode: "0755"
+    mode: "0777"
 
 - name: Add entry to fstab and actively mount the device
   become: true
@@ -56,3 +56,10 @@
   ansible.builtin.shell: exportfs -a
   register: exportfs_output
   changed_when: exportfs_output.rc != 0
+
+- name: Ensure kubernetes subdirectory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ nfs_mount_directory }}/{{ nfs_kubernetes_subdirectory }}"
+    state: directory
+    mode: "0777"
