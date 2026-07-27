@@ -2,11 +2,11 @@
 - name: Configure NFS hosts
   hosts: nfs
   roles:
-    # - role: hostname
-    # - role: hosts
+    - role: hostname
+    - role: hosts
     - role: timezone
     - role: ssh-keys
-    # - role: sshd
+    - role: sshd
     - role: base-packages
 
 - name: Configure NFS
