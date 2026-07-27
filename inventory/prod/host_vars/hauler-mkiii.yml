@@ -1,6 +1,6 @@
 ---
 # NOTE: To find UUID: `sudo lsblk -o NAME,FSTYPE,UUID,MOUNTPOINT`
-nfs_drive_UUID: "9276ecfd-6dd5-4e22-9a91-2afafd0a53a3"
+nfs_drive_UUID: "8dafdf36-cb0f-4102-a05e-d69ea5954303"
 nfs_drive_format: "ext4"
 nfs_mount_directory: "/mnt/{{ nfs_drive_UUID }}"
 nfs_authorized_host: "192.168.7.0/24" # NOTE: Can be an IP, wildcard, or subnet!
