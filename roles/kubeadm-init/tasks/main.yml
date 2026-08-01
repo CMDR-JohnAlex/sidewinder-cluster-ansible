@@ -1,4 +1,13 @@
 ---
+- name: Copy kubeadm cluster config to the first control plane node
+  become: true
+  ansible.builtin.copy:
+    src: kubeadm-config.yaml
+    dest: /etc/kubernetes/kubeadm-config.yaml
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Bootstrap the first control plane node
   become: true
   ansible.builtin.command: >
@@ -7,6 +16,7 @@
     --control-plane-endpoint={{ control_plane_VIP }}:{{ control_plane_VIP_port }}
     --upload-certs
     --pod-network-cidr={{ pod_network_cidr }}
+    --config /etc/kubernetes/kubeadm-config.yaml
   args:
     creates: /etc/kubernetes/admin.conf # TODO: When we teardown the cluster, remember to delete this file.
 
