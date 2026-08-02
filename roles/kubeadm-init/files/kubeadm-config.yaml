@@ -13,3 +13,8 @@ controllerManager:
 scheduler:
   extraArgs:
     bind-address: "0.0.0.0"
+
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+metricsBindAddress: 0.0.0.0:10249
