@@ -1,9 +1,32 @@
 ---
-# NOTE: To find UUID: `sudo lsblk -o NAME,FSTYPE,UUID,MOUNTPOINT`
-nfs_drive_UUID: "8dafdf36-cb0f-4102-a05e-d69ea5954303"
-nfs_drive_format: "ext4"
-nfs_mount_directory: "/mnt/{{ nfs_drive_UUID }}"
-nfs_kubernetes_subdirectory: "sidewinder-nfs"
-nfs_authorized_host: "192.168.7.0/24" # NOTE: Can be an IP, wildcard, or subnet!
-nfs_filesystem_mount_options: "defaults,noatime,nodiratime,commit=60,nofail"
-nfs_export_options: "rw,async,no_subtree_check,no_root_squash" # WARN: async means ACKs are sent before data actually finishes writing... we should consider this choice carefully!
+nfs_drives: # NOTE: To find UUID: `sudo lsblk -o NAME,LABEL,FSTYPE,UUID,MOUNTPOINT,FSUSED,FSAVAIL,FSUSE%,FSSIZE`
+
+  # USB STICK
+  - uuid: "8dafdf36-cb0f-4102-a05e-d69ea5954303"
+    format: "ext4"
+    kubernetes_subdirectory: "sidewinder-nfs"
+    authorized_hosts:
+      - "192.168.7.0/24"
+      - "192.168.0.7"
+    filesystem_mount_options: "defaults,noatime,commit=60,nofail"
+    export_options: "rw,async,no_subtree_check,no_root_squash,fsid=1" # WARN: async means ACKs are sent before data actually finishes writing... we should consider this choice carefully!
+
+  # HARD DRIVE 1
+  - uuid: "e9642e46-dd2e-4900-be52-4eb23e67cbf5"
+    format: "ext4"
+    kubernetes_subdirectory: "sidewinder-nfs"
+    authorized_hosts:
+      - "192.168.7.0/24"
+      - "192.168.0.7"
+    filesystem_mount_options: "defaults,noatime,nodiratime,commit=60,nofail"
+    export_options: "rw,async,no_subtree_check,no_root_squash,fsid=2"
+
+  # HARD DRIVE 2
+  # - uuid: "18BB-E083"
+  #   format: "exfat"
+  #   kubernetes_subdirectory: "sidewinder-nfs"
+  #   authorized_hosts:
+  #     - "192.168.7.0/24"
+  #     - "192.168.0.7"
+  #   filesystem_mount_options: "defaults,uid=65534,gid=65534,dmask=0000,fmask=0000,nofail"
+  #   export_options: "rw,async,no_subtree_check,no_root_squash,fsid=3"
