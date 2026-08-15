@@ -24,23 +24,34 @@
     enabled: true
     state: started
 
-- name: Ensure NFS mount directory exists
+- name: Ensure NFS mount directories exist
   become: true
   ansible.builtin.file:
-    path: "{{ nfs_mount_directory }}"
+    path: "/mnt/{{ item.uuid }}"
     state: directory
     mode: "0777"
+  loop: "{{ nfs_drives }}"
 
-- name: Add entry to fstab and actively mount the device
+- name: Add entries to fstab and actively mount the devices
   become: true
   ansible.posix.mount:
-    path: "{{ nfs_mount_directory }}"
-    src: "UUID={{ nfs_drive_UUID }}"
-    fstype: "{{ nfs_drive_format }}"
-    opts: "{{ nfs_filesystem_mount_options }}"
+    path: "/mnt/{{ item.uuid }}"
+    src: "UUID={{ item.uuid }}"
+    fstype: "{{ item.format }}"
+    opts: "{{ item.filesystem_mount_options }}"
     dump: '0'
     passno: '2'
     state: mounted
+  loop: "{{ nfs_drives }}"
+
+- name: Ensure kubernetes subdirectories exist
+  become: true
+  ansible.builtin.file:
+    path: "/mnt/{{ item.uuid }}/{{ item.kubernetes_subdirectory }}"
+    state: directory
+    mode: "0777"
+  loop: "{{ nfs_drives }}"
+  when: item.kubernetes_subdirectory is defined
 
 - name: Copy exports.j2 to node
   become: true
@@ -56,10 +67,3 @@
   ansible.builtin.shell: exportfs -a
   register: exportfs_output
   changed_when: exportfs_output.rc != 0
-
-- name: Ensure kubernetes subdirectory exists
-  become: true
-  ansible.builtin.file:
-    path: "{{ nfs_mount_directory }}/{{ nfs_kubernetes_subdirectory }}"
-    state: directory
-    mode: "0777"
