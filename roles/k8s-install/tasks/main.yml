@@ -39,6 +39,24 @@
     state: present
     persistent: present
 
+# Needed by the wg-easy deployment.
+# REF: https://wg-easy.github.io/wg-easy/latest/faq/#cant-initialize-iptables-table-nat-table-does-not-exist-do-you-need-to-insmod
+- name: Load iptable_nat kernel module
+  become: true
+  community.general.modprobe:
+    name: iptable_nat
+    state: present
+    persistent: present
+
+# Needed by the wg-easy deployment.
+# REF: https://wg-easy.github.io/wg-easy/latest/faq/#cant-initialize-ip6tables-table-nat-table-does-not-exist-do-you-need-to-insmod
+- name: Load ip6table_nat kernel module
+  become: true
+  community.general.modprobe:
+    name: ip6table_nat
+    state: present
+    persistent: present
+
 # Set ip forwarding on in the sysctl file and reload if necessary
 - name: Update sysctl values
   become: true
