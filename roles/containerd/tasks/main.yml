@@ -20,6 +20,7 @@
     dest: "/tmp/{{ containerd_cni_plugins_package }}"
     mode: '0644'
     checksum: "sha256:https://github.com/containernetworking/plugins/releases/download/{{ containerd_cni_plugins_version }}/{{ containerd_cni_plugins_sha256sum }}"
+  when: containerd_install_cni_plugins
 
 - name: Ensure CNI directory exists
   become: true
@@ -27,6 +28,7 @@
     path: "{{ containerd_cni_plugins_location }}"
     state: directory
     mode: '0755'
+  when: containerd_install_cni_plugins
 
 - name: Extract CNI plugins
   become: true
@@ -35,6 +37,7 @@
     dest: "{{ containerd_cni_plugins_location }}"
     remote_src: true
     creates: "{{ containerd_cni_plugins_location }}/bridge"
+  when: containerd_install_cni_plugins
 
 - name: Ensure CNI config directory exists
   become: true
@@ -42,6 +45,7 @@
     path: "/etc/containerd"
     state: directory
     mode: '0755'
+  when: containerd_install_cni_plugins
 
 - name: Generate containerd config
   become: true

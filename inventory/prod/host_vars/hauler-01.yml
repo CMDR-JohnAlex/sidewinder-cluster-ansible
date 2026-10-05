@@ -1,0 +1,3 @@
+---
+kubernetes_disable_swap: false
+containerd_install_cni_plugins: false

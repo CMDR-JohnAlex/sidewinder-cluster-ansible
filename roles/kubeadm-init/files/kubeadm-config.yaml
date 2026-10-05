@@ -1,18 +1,24 @@
 ---
-apiVersion: kubeadm.k8s.io/v1beta3
+apiVersion: kubeadm.k8s.io/v1beta4
 kind: ClusterConfiguration
-kubernetesVersion: v1.30.0
-controlPlaneEndpoint: "your-endpoint-ip-or-dns:6443"
+kubernetesVersion: v1.36.3
+controlPlaneEndpoint: "192.168.7.10:6443"
+
 etcd:
   local:
     extraArgs:
-      listen-metrics-urls: "http://0.0.0.0:2381"
+      - name: listen-metrics-urls
+        value: "http://0.0.0.0:2381"
+
 controllerManager:
   extraArgs:
-    bind-address: "0.0.0.0"
+    - name: bind-address
+      value: "0.0.0.0"
+
 scheduler:
   extraArgs:
-    bind-address: "0.0.0.0"
+    - name: bind-address
+      value: "0.0.0.0"
 
 ---
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
@@ -23,3 +29,6 @@ metricsBindAddress: 0.0.0.0:10249
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
 serverTLSBootstrap: true
+failSwapOn: false
+# memorySwap:
+#   swapBehavior: LimitedSwap
