@@ -8,6 +8,7 @@ nfs_drives: # NOTE: To find UUID: `sudo lsblk -o NAME,LABEL,FSTYPE,UUID,MOUNTPOI
     authorized_hosts:
       - "192.168.7.0/24"
       - "192.168.0.7"
+      - "192.168.0.11"
     filesystem_mount_options: "defaults,noatime,commit=60,nofail"
     export_options: "rw,async,no_subtree_check,no_root_squash,fsid=1" # WARN: async means ACKs are sent before data actually finishes writing... we should consider this choice carefully!
 
@@ -18,15 +19,17 @@ nfs_drives: # NOTE: To find UUID: `sudo lsblk -o NAME,LABEL,FSTYPE,UUID,MOUNTPOI
     authorized_hosts:
       - "192.168.7.0/24"
       - "192.168.0.7"
+      - "192.168.0.11"
     filesystem_mount_options: "defaults,noatime,nodiratime,commit=60,nofail"
     export_options: "rw,async,no_subtree_check,no_root_squash,fsid=2"
 
   # HARD DRIVE 2
-  # - uuid: "18BB-E083"
-  #   format: "exfat"
-  #   kubernetes_subdirectory: "sidewinder-nfs"
-  #   authorized_hosts:
-  #     - "192.168.7.0/24"
-  #     - "192.168.0.7"
-  #   filesystem_mount_options: "defaults,uid=65534,gid=65534,dmask=0000,fmask=0000,nofail"
-  #   export_options: "rw,async,no_subtree_check,no_root_squash,fsid=3"
+  - uuid: "7174939d-4158-40a9-88ee-b6acc4b71216"
+    format: "ext4"
+    kubernetes_subdirectory: "sidewinder-nfs"
+    authorized_hosts:
+      - "192.168.7.0/24"
+      - "192.168.0.7"
+      - "192.168.0.11"
+    filesystem_mount_options: "defaults,noatime,nodiratime,commit=60,nofail"
+    export_options: "rw,async,no_subtree_check,no_root_squash,fsid=3"
